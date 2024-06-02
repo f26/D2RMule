@@ -75,7 +75,7 @@ namespace D2RMuleLib
             else if (type == ItemsType.Mercenary)
             {
                 //  d2ce::Items::readItems(), line 21366
-                magic = binReader.ReadUInt16();
+                magic = binReader.ReadUInt16(); // jf
                 if (magic != 0x666a)
                 {
                     throw new Exception("Unexpected merc magic: " + magic.ToString("x4"));
@@ -130,29 +130,20 @@ namespace D2RMuleLib
             bsr = new BitStreamReader(binReader);
             for (int itemCounter = 0; itemCounter < itemCount; itemCounter++)
             {
-                try
-                {
-                    Console.WriteLine("\nItem #: " + itemCounter);
-                    Item it = new Item(bsr);
-                    it.CharacterName = characterName;
-                    it.Location = type.ToString();
+                Console.WriteLine("\nItem #: " + itemCounter);
+                Item it = new Item(bsr);
+                it.CharacterName = characterName;
+                it.Location = type.ToString();
 
-                    // Set location accordingly
-                    if (it.Location == "Player")
-                    {
-                        if (it.Parent == Parent.Stored)
-                            it.Location = it.Stash.ToString();
-                        else
-                            it.Location = it.Parent.ToString();
-                    }
-                    items.Add(it);
-                }
-                catch (Exception ex)
+                // Set location accordingly
+                if (it.Location == "Player")
                 {
-                    // Error reading in an item... the rest of the vault is not salvageable!
-                    this.ErrorString = "Error reading in item " + itemCounter.ToString() + " of " + itemCount + ".  Rest of items cannot be read. Womp womp.";
+                    if (it.Parent == Parent.Stored)
+                        it.Location = it.Stash.ToString();
+                    else
+                        it.Location = it.Parent.ToString();
                 }
-
+                items.Add(it);
             }
         }
 
@@ -202,6 +193,11 @@ namespace D2RMuleLib
             {
                 i.Save(ms);
             }
+        }
+
+        public void Sort()
+        {
+            items.Sort();
         }
     }
 }
