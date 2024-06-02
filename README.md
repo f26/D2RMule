@@ -8,8 +8,8 @@ Written in C# .NET 8 with Visual Studio 2022.
 
 ## Features
 
-* Easily transfer items between characters/vault in a natural way
 * Unlimited vault space (ok technically 4 billion items is the max)
+* Easily transfer items between characters/vault in a natural way
 * Separate vaults for all combinations of classic/expandion and normal/hardcore characters.
 * Vault filtering to easily find items
 * High quality D2R graphics (extracted directly from game files)
