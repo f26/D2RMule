@@ -176,7 +176,14 @@ namespace D2RMuleGUI
             this.Top = 100;
             this.Left = 100;
 
-            this.textBoxDirectory.Text = Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + @"\D2RMule\_\saves\";
+            string savedGamesDirectory = Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile) + @"\Saved Games\Diablo II Resurrected";
+            if (!Directory.Exists(savedGamesDirectory))
+            {
+                savedGamesDirectory = Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+            }
+            this.textBoxDirectory.Text = savedGamesDirectory;
+
+            //this.textBoxDirectory.Text = Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + @"\D2RMule\_\saves\";
 
             // The base, clean backgrounds
             this.stashOriginalImage = Image.FromFile("images/stash.png");
@@ -231,22 +238,32 @@ namespace D2RMuleGUI
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.pictureBoxLeft.Enabled = true;
-            this.pictureBoxLeft.Visible = true;
-            this.textBoxVaultFilter.Visible = true;
-
-            string folderPath = this.textBoxDirectory.Text;
-            string fullPath = folderPath + this.listBoxCharacters.SelectedItem;
-            this.currentlyDisplayed = fullPath;
-
-            if (!this.characterFiles.ContainsKey(fullPath))
+            try
             {
-                D2SFile d2SFile = new D2SFile(currentlyDisplayed);
-                this.characterFiles.Add(fullPath, d2SFile);
-            }
+                this.pictureBoxLeft.Enabled = true;
+                this.pictureBoxLeft.Visible = true;
+                this.textBoxVaultFilter.Visible = true;
 
-            this.currentlyDisplayed = fullPath;
-            RefreshDisplayedItems();
+                string folderPath = this.textBoxDirectory.Text;
+                string fullPath = folderPath + this.listBoxCharacters.SelectedItem;
+                this.currentlyDisplayed = fullPath;
+
+                if (!this.characterFiles.ContainsKey(fullPath))
+                {
+                    D2SFile d2SFile = new D2SFile(currentlyDisplayed);
+                    this.characterFiles.Add(fullPath, d2SFile);
+                }
+
+                this.currentlyDisplayed = fullPath;
+                RefreshDisplayedItems();
+            }
+            catch (System.IO.FileNotFoundException ex)
+            {
+                // No character selected
+                this.pictureBoxLeft.Enabled = false;
+                this.pictureBoxLeft.Visible = false;
+                this.textBoxVaultFilter.Visible = false;
+            }
         }
 
         private void buttonRefresh_Click(object sender, EventArgs e)
@@ -371,6 +388,7 @@ namespace D2RMuleGUI
                         this.displayedHand = Hand.Alt;
                     else
                         this.displayedHand = Hand.Main;
+                    PlayButtonSound();
                     refreshNeeded = true;
                 }
                 else
@@ -1247,7 +1265,7 @@ namespace D2RMuleGUI
 
             vaultDisplayIndexStack.Push(vaultCurrentDisplayIndex);
             vaultCurrentDisplayIndex += vaultItemsOnCurrentPage;
-            
+
             PlayButtonSound();
             return true;
         }
@@ -1559,6 +1577,7 @@ namespace D2RMuleGUI
                 {
                     if (!isAllowedInVault(itemClicked)) return false;
                     this.vaultItems.items.Add(itemClicked);
+                    SortVault();
                     PlayVaultSound();
                 }
                 else
@@ -1621,9 +1640,17 @@ namespace D2RMuleGUI
                 }
             }
 
+            SortVault();
+
             PlayVaultSound();
 
             return refreshNeeded;
+        }
+
+        void SortVault()
+        {
+            // Auto-sort by item type?
+            //this.vaultItems.Sort();
         }
 
         bool isAllowedInVault(Item item)
@@ -2292,8 +2319,6 @@ namespace D2RMuleGUI
                 }
             }
         }
-
-
 
         private void radioButtonHardcore_Click(object sender, EventArgs e)
         {
