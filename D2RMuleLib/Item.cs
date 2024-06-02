@@ -53,8 +53,13 @@ namespace D2RMuleLib
         LowQuality = 3
     }
 
-    public class Item : ICloneable
+    public class Item : ICloneable, IComparable<Item>
     {
+        public int CompareTo(Item that)
+        {
+            return this.Type.CompareTo(that.Type);
+        }
+
         public object Clone()
         {
             return this.MemberwiseClone();
@@ -691,6 +696,8 @@ namespace D2RMuleLib
 
                 // Skip a few weirdos
                 if (thisItem.Name == "secondary_maxdamage") continue;
+                if (thisItem.Name == "secondary_mindamage") continue;
+                if (thisItem.Name == "mana") continue;
                 if (thisItem.Name == "item_throw_maxdamage") continue;
 
                 List<string> possibleMods = D2DB.Instance().propertiesDB[thisItem.Name];
@@ -835,7 +842,7 @@ namespace D2RMuleLib
             if (this.IsSocketed)
             {
                 text += "Socketed: " + this.Sockets.ToString();
-                if(this.socketedItems.Count > 0)
+                if (this.socketedItems.Count > 0)
                     text += " (" + this.SocketedItems + ")\n";
                 else
                     text += " (empty)\n";
@@ -1130,7 +1137,7 @@ namespace D2RMuleLib
 
         public bool isLargeMetalWeapon()
         {
-            return isAxe() || (isMace() && !"clb spc 9cl 9sp 7cl 7sp".Contains(this.TypeCode));
+            return isAxe() || isScepter() || (isMace() && !"clb spc 9cl 9sp 7cl 7sp".Contains(this.TypeCode));
         }
 
         public bool isSword()
