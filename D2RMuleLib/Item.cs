@@ -694,7 +694,9 @@ namespace D2RMuleLib
 
                 Console.Write("");
 
-                // Skip a few weirdos
+                // Skip a few weirdos that do not have an entry in the properties DB.  Need to figure out 
+                // what these work out to one day so I can properly display them.  For now these will not be
+                // shown at all.
                 if (thisItem.Name == "secondary_maxdamage") continue;
                 if (thisItem.Name == "secondary_mindamage") continue;
                 if (thisItem.Name == "mana") continue;
