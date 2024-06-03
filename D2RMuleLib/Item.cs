@@ -699,6 +699,7 @@ namespace D2RMuleLib
                 if (thisItem.Name == "secondary_mindamage") continue;
                 if (thisItem.Name == "mana") continue;
                 if (thisItem.Name == "item_throw_maxdamage") continue;
+                if (thisItem.Name == "item_extrablood") continue;
 
                 List<string> possibleMods = D2DB.Instance().propertiesDB[thisItem.Name];
 
@@ -1018,7 +1019,7 @@ namespace D2RMuleLib
 
         public bool isWeapon()
         {
-            return "hax  axe  2ax  mpi  wax  lax  bax  btx  gax  gix  clb  spc  mac  mst  fla  whm  mau  gma  ssd  scm  sbr  flc  crs  bsd  lsd  wsd  2hs  clm  gis  bsw  flb  gsd  dgr  dir  kri  bld  tkf  tax  bkf  bal  jav  pil  ssp  glv  tsp  spr  tri  brn  spt  pik  bar  vou  scy  pax  hal  wsc  sbw  hbw  lbw  cbw  sbb  lbb  swb  lwb  lxb  mxb  hxb  rxb  sst  lst  gst  bst  wst  wnd  ywn  bwn  gwn  scp  gsc  wsp  ktr  wrb  axf  ces  clw  btl  skr  ob1  ob2  ob3  ob4  ob5  am1  am2  am3  am4  am5  9ha  9ax  92a  9mp  9wa  9la  9ba  9bt  9ga  9gi  9cl  9sp  9ma  9mt  9fl  9wh  9m9  9gm  9ss  9sm  9sb  9fc  9cr  9bs  9ls  9wd  92h  9cm  9gs  9b9  9fb  9gd  9dg  9di  9kr  9bl  9tk  9ta  9bk  9b8  9ja  9pi  9s9  9gl  9ts  9sr  9tr  9br  9st  9p9  9b7  9vo  9s8  9pa  9h9  9wc  8sb  8hb  8lb  8cb  8s8  8l8  8sw  8lw  8lx  8mx  8hx  8rx  8ss  8ls  8cs  8bs  8ws  9wn  9yw  9bw  9gw  9sc  9qs  9ws  9ar  9wb  9xf  9cs  9lw  9hw  9qr  ob6  ob7  ob8  ob9  oba  am6  am7  am8  am9  ama  7ha  7ax  72a  7mp  7wa  7la  7ba  7bt  7ga  7gi  7cl  7sp  7ma  7mf  7fl  7wh  7m7  7gm  7ss  7sm  7sb  7fc  7cr  7bs  7ls  7wd  72h  7cm  7gs  7b7  7fb  7gd  7dg  7di  7kr  7bl  7tk  7ta  7bk  7b8  7ja  7pi  7s7  7gl  7ts  7sr  7tr  7br  7st  7p7  7o7  7vo  7s8  7pa  7h7  7wc  6sb  6hb  6lb  6cb  6s7  6l7  6sw  6lw  6lx  6mx  6hx  6rx  6ss  6ls  6cs  6bs  6ws  7wn  7yw  7bw  7gw  7sc  7qs  7ws  7ar  7wb  7xf  7cs  7lw  7hw  7qr  obb  obc  obd  obe  obf  amb  amc  amd  ame  amf".Contains(this.TypeCode);
+            return "hax  axe  2ax  mpi  wax  lax  bax  btx  gax  gix  clb  spc  mac  mst  fla  whm  mau  gma  ssd  scm  sbr  flc  crs  bsd  lsd  wsd  2hs  clm  gis  bsw  flb  gsd  dgr  dir  kri  bld  tkf  tax  bkf  bal  jav  pil  ssp  glv  tsp  spr  tri  brn  spt  pik  bar  vou  scy  pax  hal  wsc  sbw  hbw  lbw  cbw  sbb  lbb  swb  lwb  lxb  mxb  hxb  rxb  sst  lst  gst  bst  wst  wnd  ywn  bwn  gwn  scp  gsc  wsp  ktr  wrb  axf  ces  clw  btl  skr  ob1  ob2  ob3  ob4  ob5  am1  am2  am3  am4  am5  9ha  9ax  92a  9mp  9wa  9la  9ba  9bt  9ga  9gi  9cl  9sp  9ma  9mt  9fl  9wh  9m9  9gm  9ss  9sm  9sb  9fc  9cr  9bs  9ls  9wd  92h  9cm  9gs  9b9  9fb  9gd  9dg  9di  9kr  9bl  9tk  9ta  9bk  9b8  9ja  9pi  9s9  9gl  9ts  9sr  9tr  9br  9st  9p9  9b7  9vo  9s8  9pa  9h9  9wc  8sb  8hb  8lb  8cb  8s8  8l8  8sw  8lw  8lx  8mx  8hx  8rx  8ss  8ls  8cs  8bs  8ws  9wn  9yw  9bw  9gw  9sc  9qs  9ws  9ar  9wb  9xf  9cs  9lw  9hw  9qr  ob6  ob7  ob8  ob9  oba  am6  am7  am8  am9  ama  7ha  7ax  72a  7mp  7wa  7la  7ba  7bt  7ga  7gi  7cl  7sp  7ma  7mf  7fl  7wh  7m7  7gm  7ss  7sm  7sb  7fc  7cr  7bs  7ls  7wd  72h  7cm  7gs  7b7  7fb  7gd  7dg  7di  7kr  7bl  7tk  7ta  7bk  7b8  7ja  7pi  7s7  7gl  7ts  7sr  7tr  7br  7st  7p7  7o7  7vo  7s8  7pa  7h7  7wc  6sb  6hb  6lb  6cb  6s7  6l7  6sw  6lw  6lx  6mx  6hx  6rx  6ss  6ls  6cs  6bs  6ws  7wn  7yw  7bw  7gw  7sc  7qs  7ws  7ar  7wb  7xf  7cs  7lw  7hw  7qr  obb  obc  obd  obe  obf  amb  amc  amd  ame  amf msf hst".Contains(this.TypeCode);
         }
 
         public bool isCharm()
@@ -1108,7 +1109,7 @@ namespace D2RMuleLib
 
         public bool isStaff()
         {
-            return "sst lst gst bst wst 8ss 8ls 8cs 8bs 8ws 6ss 6ls 6cs 6bs 6ws".Contains(this.TypeCode);
+            return "sst lst gst bst wst 8ss 8ls 8cs 8bs 8ws 6ss 6ls 6cs 6bs 6ws msf hst".Contains(this.TypeCode);
         }
         public bool isWand()
         {
