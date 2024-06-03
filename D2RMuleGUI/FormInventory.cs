@@ -1931,7 +1931,6 @@ namespace D2RMuleGUI
             }
             else if (this.inventoryRightHand.ContainsPoint(e) && (onCursor.isWeapon() || onCursor.isShield()))
             {
-
                 if (displayedHand == Hand.Main)
                 {
                     if (PlayerHasEquipped(EquippedSlot.RHand)) return false;
