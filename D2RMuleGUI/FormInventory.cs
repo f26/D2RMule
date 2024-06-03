@@ -11,9 +11,11 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.Pkcs;
 using System.Text;
 using System.Windows.Forms;
+using System.Text.Json;
 
 namespace D2RMuleGUI
 {
+
     enum DisplaySection
     {
         None,
@@ -171,17 +173,58 @@ namespace D2RMuleGUI
             tt.InitialDelay = 200;   // Set initial delay before showing the tooltip
             tt.ReshowDelay = 200;    // Set the delay before showing the tooltip again if mouse stops
         }
+
+
+
+        void LoadConfiguration()
+        {
+            D2RMuleSettings settings = D2RMuleSettings.Load();
+
+            this.radioButtonClassic.Checked = false;
+            this.radioButtonExpansion.Checked = true;
+
+            if (settings.Game == D2RMuleSettings.GameType.Classic)
+            {
+                this.radioButtonClassic.Checked = true;
+                this.radioButtonExpansion.Checked = false;
+            }
+
+            this.radioButtonNormal.Checked = true;
+            this.radioButtonHardcore.Checked = false;
+            if (settings.Mode == D2RMuleSettings.ModeType.Hardcore)
+            {
+                this.radioButtonNormal.Checked = false;
+                this.radioButtonHardcore.Checked = true;
+            }
+
+            this.textBoxDirectory.Text = settings.SaveDirectory;
+        }
+
+        void SaveConfiguration()
+        {
+            D2RMuleSettings settings = new D2RMuleSettings();
+
+            settings.Game = D2RMuleSettings.GameType.LordOfDestruction;
+            if (this.radioButtonClassic.Checked)
+                settings.Game = D2RMuleSettings.GameType.Classic;
+
+            settings.Mode = D2RMuleSettings.ModeType.Normal;
+            if (this.radioButtonHardcore.Checked)
+                settings.Mode = D2RMuleSettings.ModeType.Hardcore;
+
+            settings.SaveDirectory = this.textBoxDirectory.Text;
+
+            settings.Save();
+        }
+
         private void FormInventory_Load(object sender, EventArgs e)
         {
             this.Top = 100;
             this.Left = 100;
 
-            string savedGamesDirectory = Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile) + @"\Saved Games\Diablo II Resurrected";
-            if (!Directory.Exists(savedGamesDirectory))
-            {
-                savedGamesDirectory = Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-            }
-            this.textBoxDirectory.Text = savedGamesDirectory;
+            LoadConfiguration();
+
+
 
             //this.textBoxDirectory.Text = Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + @"\D2RMule\_\saves\";
 
@@ -234,6 +277,7 @@ namespace D2RMuleGUI
                 e.Cancel = true;
             }
             SaveModifiedFiles();
+            SaveConfiguration();
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -2433,6 +2477,58 @@ namespace D2RMuleGUI
             Point actualClickedPoint = new Point((int)Math.Round((double)point.X / ratio),
                                  (int)Math.Round((double)point.Y / ratio));
             return rect.Contains(actualClickedPoint);
+        }
+    }
+
+    public class D2RMuleSettings
+    {
+        public enum GameType
+        {
+            Classic,
+            LordOfDestruction
+        }
+
+        public enum ModeType
+        {
+            Normal,
+            Hardcore
+        }
+
+        public const string SAVE_FILE = "d2rmule_config.json";
+
+        public string SaveDirectory { get; set; }
+        public GameType Game { get; set; } = GameType.LordOfDestruction;
+        public ModeType Mode { get; set; } = ModeType.Normal;
+
+        public void Save()
+        {
+            string jsonString = JsonSerializer.Serialize(this);
+            File.WriteAllText(SAVE_FILE, jsonString);
+        }
+
+        public static D2RMuleSettings Load()
+        {
+            // If the file exists, attempt to load it
+            if (File.Exists(SAVE_FILE))
+            {
+                var settings = JsonSerializer.Deserialize<D2RMuleSettings>(File.ReadAllText(SAVE_FILE));
+
+                if (settings == null)
+                    throw new Exception("Unable to deserialize");
+
+                return settings;
+            }
+
+            // If execution gets here, the configuration file does not exist.  Generate a default config.
+            D2RMuleSettings s = new D2RMuleSettings();
+            string dir = Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile) +
+                @"\Saved Games\Diablo II Resurrected";
+            if (!Directory.Exists(dir))
+            {
+                dir = Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+            }
+            s.SaveDirectory = dir;
+            return s;
         }
     }
 }
