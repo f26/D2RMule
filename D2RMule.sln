@@ -13,6 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObjectListView", "ObjectLis
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1DF79FC9-9E1E-4EA1-A4D9-74613A9AA74A}"
 	ProjectSection(SolutionItems) = preProject
+		D2SFormat.md = D2SFormat.md
 		DevNotes.md = DevNotes.md
 		README.md = README.md
 	EndProjectSection
