@@ -628,7 +628,14 @@ namespace D2RMuleLib
                     ma.Add(bsr.ReadBits(8) - thisItem.SaveAdd);
                 }
                 else if (thisItem.Encode == 4)
-                    throw new Exception("Time based stat detected.  How?! These were never implemented!");
+                {
+                    // These were never implemented, but some items seem to have them anyway?  Read the
+                    // values and throw them away because they have no effect
+                    bsr.ReadBits((int)thisItem.SaveBits);
+                    bsr.ReadBits((int)thisItem.ParamBits);
+                    break;
+                }
+                //throw new Exception("Time based stat detected.  How?! These were never implemented!");
                 else if (thisItem.ParamBits > 0)
                 {
                     if (thisItem.Name == "item_addskill_tab")
