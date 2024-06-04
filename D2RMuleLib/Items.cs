@@ -170,11 +170,10 @@ namespace D2RMuleLib
                     // items.  The item list starts with a traditional player/corpse magic value and item
                     // count.  If there are no items, nothing follows the merc magic value.
                     case ItemsType.Mercenary:
-                        if (items.Count > 0)
-                        {
-                            writer.Write((UInt16)0x4d4a);
-                            writer.Write((UInt16)items.Count);
-                        }
+
+                        writer.Write((UInt16)0x4d4a);
+                        writer.Write((UInt16)items.Count);
+
                         break;
 
                     // Golem item list has a single byte to indicate whether or not there is a golem.  It
