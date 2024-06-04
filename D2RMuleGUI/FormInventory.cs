@@ -224,8 +224,6 @@ namespace D2RMuleGUI
 
             LoadConfiguration();
 
-
-
             //this.textBoxDirectory.Text = Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + @"\D2RMule\_\saves\";
 
             // The base, clean backgrounds
@@ -516,7 +514,7 @@ namespace D2RMuleGUI
                     case "9cr": typeCode = "ginthers"; break; // Ginther's Rift
                     case "flc": typeCode = "gleam"; break; // Gleamscythe
                     case "bwn": typeCode = "gravenspine"; break; // Gravenspine
-                    case "bsd": typeCode = "griwsold"; break; // Griswold's Edge
+                    case "bsd": typeCode = "griswold"; break; // Griswold's Edge
                     case "hxb": typeCode = "hellcast"; break; // Hellcast
                     case "swb": typeCode = "hellclap"; break; // Hellclap
                     case "hfh": typeCode = "hellforge"; break; // Hellforge Hammer
