@@ -53,6 +53,9 @@ namespace D2RMuleGUI
         double ratio = 1.0;
         const int MARGIN = 8;
 
+        Size STASH_SIZE = new Size(10, 10);
+        Size CLASSIC_STASH_SIZE = new Size(6, 4);
+
         // All these rects are in pixels and relate to the background images.  If the background images are
         // modified, these values will have to be recalculated.  Note that the positions are all in pixels
         // and are in SOURCE IMAGE pixels.  If the picture boxe is not the exact same size as the source
@@ -66,6 +69,7 @@ namespace D2RMuleGUI
         Rectangle rightHalf = new Rectangle(1162, 0, 1162, 1507);
 
         Rectangle stashItemGrid = new Rectangle(90, 236, 10 * GRID_SIZE_PX, 10 * GRID_SIZE_PX);
+        Rectangle stashClassicItemGrid = new Rectangle(288, 750, 6 * GRID_SIZE_PX, 4 * GRID_SIZE_PX);
         Rectangle stashSelectButton = new Rectangle(641, 59, 463, 72);
         Rectangle stashIngestAll = new Rectangle(487, 1399, 186, 38);
 
@@ -134,11 +138,11 @@ namespace D2RMuleGUI
 
         // The various images
         Image stashOriginalImage;
+        Image classicStashOriginalImage;
         Image vaultOriginalImage;
         Image inventoryOriginalImage;
         Image inventoryOriginalAltImage;
         Image classicInventoryOriginalImage;
-        Image classicStashOriginalImage;
         Image mercOriginalImage;
         Image vaultFilterCheckedImage;
         Image cubeOriginalImage;
@@ -297,6 +301,14 @@ namespace D2RMuleGUI
                 }
 
                 this.currentlyDisplayed = fullPath;
+
+                // Classic does not have equippable mercs, so don't allow view of merc
+                if (!this.characterFiles[currentlyDisplayed].isExpansion &&
+                    this.rightPanelDisplay == DisplaySection.Mercenary)
+                {
+                    this.rightPanelDisplay = DisplaySection.Inventory;
+                }
+
                 RefreshDisplayedItems();
             }
             catch (System.IO.FileNotFoundException ex)
@@ -376,9 +388,19 @@ namespace D2RMuleGUI
                      this.rightPanelDisplay != DisplaySection.Mercenary &&
                      this.mercButton.ContainsPoint(mouseEventArgs.Location))
             {
-                this.rightPanelDisplay = DisplaySection.Mercenary;
-                PlayButtonSound();
-                refreshNeeded = true;
+                // Classic does not allow merc equip, so don't swap to it.
+                if (this.characterFiles[currentlyDisplayed].isExpansion)
+                {
+                    this.rightPanelDisplay = DisplaySection.Mercenary;
+                    PlayButtonSound();
+                    refreshNeeded = true;
+                }
+                else
+                {
+                    PlayFailSound();
+                    refreshNeeded = false;
+                }
+
             }
             // Switching to cube?
             else if (this.rightPanelDisplay != DisplaySection.Vault &&
@@ -949,12 +971,16 @@ namespace D2RMuleGUI
 
         private List<ItemRect> GenerateCurrentPlayerStashRects()
         {
+            Rectangle stashItemGrid = this.stashItemGrid;
+            if (!this.characterFiles[currentlyDisplayed].isExpansion)
+                stashItemGrid = this.stashClassicItemGrid;
+
             List<ItemRect> list = new List<ItemRect>();
             foreach (Item item in this.characterFiles[currentlyDisplayed].playerItems.items)
             {
                 if (item.Stash != Stash.Stash) continue;
-                ItemRect rect = new ItemRect(this.stashItemGrid.X + item.Position.X * GRID_SIZE_PX,
-                    this.stashItemGrid.Y + item.Position.Y * GRID_SIZE_PX,
+                ItemRect rect = new ItemRect(stashItemGrid.X + item.Position.X * GRID_SIZE_PX,
+                    stashItemGrid.Y + item.Position.Y * GRID_SIZE_PX,
                     item.Size.Width * GRID_SIZE_PX,
                     item.Size.Height * GRID_SIZE_PX);
                 rect.Item = item;
@@ -1000,6 +1026,13 @@ namespace D2RMuleGUI
 
         private void DrawStashContents()
         {
+
+            Rectangle stashItemGrid = this.stashItemGrid;
+            if (!this.characterFiles[currentlyDisplayed].isExpansion)
+            {
+                stashItemGrid = this.stashClassicItemGrid;
+            }
+
             // Bring picturebox to the front to ensure it is over the vault search box
             this.pictureBoxLeft.BringToFront();
 
@@ -1008,8 +1041,8 @@ namespace D2RMuleGUI
                 foreach (Item item in this.characterFiles[currentlyDisplayed].playerItems.items)
                 {
                     if (item.Stash != Stash.Stash) continue;
-                    int xPos = this.stashItemGrid.X + item.Position.X * GRID_SIZE_PX;
-                    int yPos = this.stashItemGrid.Y + item.Position.Y * GRID_SIZE_PX;
+                    int xPos = stashItemGrid.X + item.Position.X * GRID_SIZE_PX;
+                    int yPos = stashItemGrid.Y + item.Position.Y * GRID_SIZE_PX;
                     Image itemImage = GetImage(item);
                     g.DrawImage(itemImage, new Point(xPos, yPos));
                 }
@@ -1019,8 +1052,8 @@ namespace D2RMuleGUI
                 if (itemPickedFrom == DisplaySection.Stash &&
                     onCursor.CharacterName == this.characterFiles[currentlyDisplayed].CharacterName)
                 {
-                    int xPos = this.stashItemGrid.X + onCursor.Position.X * GRID_SIZE_PX;
-                    int yPos = this.stashItemGrid.Y + onCursor.Position.Y * GRID_SIZE_PX;
+                    int xPos = stashItemGrid.X + onCursor.Position.X * GRID_SIZE_PX;
+                    int yPos = stashItemGrid.Y + onCursor.Position.Y * GRID_SIZE_PX;
                     Image itemImage = GetImage(onCursor);
                     using (Graphics g2 = Graphics.FromImage(itemImage))
                     {
@@ -1241,7 +1274,10 @@ namespace D2RMuleGUI
             if (this.leftPanelDisplay != DisplaySection.Vault)
             {
                 // Draw the stash on the left
-                this.compositedImage.DrawImage(this.stashOriginalImage);
+                if (this.characterFiles.Count == 0 || this.characterFiles[currentlyDisplayed].isExpansion)
+                    this.compositedImage.DrawImage(this.stashOriginalImage);
+                else
+                    this.compositedImage.DrawImage(this.classicStashOriginalImage);
 
                 // Draw the stash selector tab at the top left of the stash
                 Image tabStash = Image.FromFile("images/stash_tab.png");
@@ -1429,14 +1465,22 @@ namespace D2RMuleGUI
 
                 List<ItemRect> stashRects = GenerateCurrentPlayerStashRects();
 
-                // Attempt to place the item somewhere in the player's stash
-                for (int y = 0; y < 10; y++)
+                Rectangle stashItemGrid = this.stashItemGrid;
+                Size stashSize = this.STASH_SIZE;
+                if (!this.characterFiles[currentlyDisplayed].isExpansion)
                 {
-                    for (int x = 0; x < 10; x++)
+                    stashSize = this.CLASSIC_STASH_SIZE;
+                    stashItemGrid = this.stashClassicItemGrid;
+                }
+
+                // Attempt to place the item somewhere in the player's stash
+                for (int y = 0; y < stashSize.Height; y++)
+                {
+                    for (int x = 0; x < stashSize.Width; x++)
                     {
                         // Determine the bounding rectangle that would go with the item if it was dropped here
-                        Rectangle candidateRect = new Rectangle(this.stashItemGrid.X + x * GRID_SIZE_PX,
-                            this.stashItemGrid.Y + y * GRID_SIZE_PX,
+                        Rectangle candidateRect = new Rectangle(stashItemGrid.X + x * GRID_SIZE_PX,
+                            stashItemGrid.Y + y * GRID_SIZE_PX,
                             rect.Item.Size.Width * GRID_SIZE_PX,
                             rect.Item.Size.Height * GRID_SIZE_PX);
 
@@ -1454,7 +1498,7 @@ namespace D2RMuleGUI
                         if (!collision)
                         {
                             // Ok now check if it would go outside the bounds of the item grid
-                            if (x + rect.Item.Size.Width > 10 || y + rect.Item.Size.Height > 10)
+                            if (x + rect.Item.Size.Width > stashSize.Width || y + rect.Item.Size.Height > stashSize.Height)
                                 continue;
 
                             // This item fits on player stash at this position.  Move it.
@@ -1492,10 +1536,17 @@ namespace D2RMuleGUI
         bool AttemptToPlaceInOppositePanel(Item item)
         {
             // Assume target is stash, this is overriden below if it isn't
-            Rectangle targetGrid = stashItemGrid;
+            Rectangle targetGrid = this.stashClassicItemGrid;
             List<ItemRect> targetRects = GenerateCurrentPlayerStashRects();
-            int targetMaxY = 10;
-            int targetMaxX = 10;
+            int targetMaxX = CLASSIC_STASH_SIZE.Width;
+            int targetMaxY = CLASSIC_STASH_SIZE.Height;
+
+            if (this.characterFiles[currentlyDisplayed].isExpansion)
+            {
+                targetGrid = this.stashItemGrid;
+                targetMaxX = STASH_SIZE.Width;
+                targetMaxY = STASH_SIZE.Height;
+            }
             Stash targetStash = Stash.Stash;
 
             // If item is the stash, it must be going to inventory or cube (not allowed to go to merc)
@@ -1568,7 +1619,6 @@ namespace D2RMuleGUI
                 }
             }
 
-            // TODO: Play error ding?
             PlayFailSound();
             return false;
         }
@@ -1577,7 +1627,6 @@ namespace D2RMuleGUI
         {
             bool clickedOnItem = false;
             Item itemClicked = new Item();
-            bool refreshNeeded = false;
 
             List<ItemRect> itemRects = this.leftPanelRects;
             if (this.rightHalf.ContainsPoint(e))
@@ -2056,20 +2105,36 @@ namespace D2RMuleGUI
 
         bool HandleLeftSideClickWithItemOnCursor(MouseEventArgs e)
         {
+            bool isExpansion = this.characterFiles[currentlyDisplayed].isExpansion;
+
             // Was this click within the stash grid?
-            if (!this.stashItemGrid.ContainsPoint(e))
+            if (isExpansion && !this.stashItemGrid.ContainsPoint(e))
                 return false;
+            if (!isExpansion && !this.stashClassicItemGrid.ContainsPoint(e))
+                return false;
+
+            Rectangle stashItemGrid = this.stashItemGrid;
+            Size stashSize = this.STASH_SIZE;
+            if (!isExpansion)
+            {
+                stashItemGrid = this.stashClassicItemGrid;
+                stashSize = CLASSIC_STASH_SIZE;
+            }
+
 
             // User clicked in the stash grid.  If the item is dropped right here, would it collide with
             // any other item?
 
             // First, determine what grid space was clicked on
-            int gridX = (int)(((e.Location.X / this.ratio) - this.stashItemGrid.Location.X) / GRID_SIZE_PX);
-            int gridY = (int)(((e.Location.Y / this.ratio) - this.stashItemGrid.Location.Y) / GRID_SIZE_PX);
+            int gridX = (int)(((e.Location.X / this.ratio) - stashItemGrid.Location.X) / GRID_SIZE_PX);
+            int gridY = (int)(((e.Location.Y / this.ratio) - stashItemGrid.Location.Y) / GRID_SIZE_PX);
+
+
+
 
             // Now determine the bounding rectangle that goes with the item if it were to be dropped right here
-            Rectangle rect = new Rectangle(this.stashItemGrid.X + gridX * GRID_SIZE_PX,
-                                           this.stashItemGrid.Y + gridY * GRID_SIZE_PX,
+            Rectangle rect = new Rectangle(stashItemGrid.X + gridX * GRID_SIZE_PX,
+                                           stashItemGrid.Y + gridY * GRID_SIZE_PX,
                                            onCursor.Size.Width * GRID_SIZE_PX,
                                            onCursor.Size.Height * GRID_SIZE_PX);
 
@@ -2081,7 +2146,7 @@ namespace D2RMuleGUI
             }
 
             // Ok now check if it would go outside the bounds of the item grid
-            if (gridX + onCursor.Size.Width > 10 || gridY + onCursor.Size.Height > 10)
+            if (gridX + onCursor.Size.Width > stashSize.Width || gridY + onCursor.Size.Height > stashSize.Height)
                 return false;
 
             // If execution gets here, the item does not collide with anything in the grid and it does
@@ -2371,6 +2436,8 @@ namespace D2RMuleGUI
 
             if (this.radioButtonHardcore.Checked == false)
             {
+                this.pictureBoxLeft.Visible = false;
+                this.textBoxVaultFilter.Visible = false;
                 SaveVault();
                 SaveModifiedFiles();
                 this.radioButtonNormal.Checked = false;
@@ -2390,6 +2457,8 @@ namespace D2RMuleGUI
 
             if (this.radioButtonNormal.Checked == false)
             {
+                this.pictureBoxLeft.Visible = false;
+                this.textBoxVaultFilter.Visible = false;
                 SaveVault();
                 SaveModifiedFiles();
                 this.radioButtonHardcore.Checked = false;
@@ -2401,7 +2470,7 @@ namespace D2RMuleGUI
 
         private void radioButtonExpansion_Click(object sender, EventArgs e)
         {
-
+            
             if (itemPickedFrom != DisplaySection.None)
             {
                 MessageBox.Show("Item on cursor, can't do this");
@@ -2410,6 +2479,8 @@ namespace D2RMuleGUI
 
             if (this.radioButtonExpansion.Checked == false)
             {
+                this.pictureBoxLeft.Visible = false;
+                this.textBoxVaultFilter.Visible = false;
                 SaveVault();
                 SaveModifiedFiles();
                 this.radioButtonClassic.Checked = false;
@@ -2429,6 +2500,8 @@ namespace D2RMuleGUI
 
             if (this.radioButtonClassic.Checked == false)
             {
+                this.pictureBoxLeft.Visible = false;
+                this.textBoxVaultFilter.Visible = false;
                 SaveVault();
                 SaveModifiedFiles();
                 this.radioButtonExpansion.Checked = false;
