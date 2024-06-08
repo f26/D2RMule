@@ -90,7 +90,6 @@ namespace D2RMuleLib
             UInt64 expectedFilesize = GetFileSize(filename);
             UInt32 expectedChecksum = CalculateChecksum(filename);
 
-
             using (FileStream fileStream = new System.IO.FileStream(filename, FileMode.Open, FileAccess.Read))
             using (BinaryReader binReader = new System.IO.BinaryReader(fileStream, Encoding.ASCII))
             {
