@@ -1275,13 +1275,17 @@ namespace D2RMuleGUI
             {
                 // Draw the stash on the left
                 if (this.characterFiles.Count == 0 || this.characterFiles[currentlyDisplayed].isExpansion)
+                {
                     this.compositedImage.DrawImage(this.stashOriginalImage);
-                else
-                    this.compositedImage.DrawImage(this.classicStashOriginalImage);
 
-                // Draw the stash selector tab at the top left of the stash
-                Image tabStash = Image.FromFile("images/stash_tab.png");
-                this.compositedImage.DrawImage(tabStash, new Point(84, 164));
+                    // Draw the stash selector tab at the top left of the stash
+                    Image tabStash = Image.FromFile("images/stash_tab.png");
+                    this.compositedImage.DrawImage(tabStash, new Point(84, 164));
+                }
+                else
+                {
+                    this.compositedImage.DrawImage(this.classicStashOriginalImage);
+                }
 
                 // Draw the appropriate right side
                 switch (this.rightPanelDisplay)
