@@ -30,6 +30,7 @@ A list of known limitations, issues, shortcomings, etc.
 * NOT AN ITEM EDITOR.  WILL NOT EDIT ITEMS.
 * Only compatible with latest D2R character files
 * Item information displayed on hover is not a 100% exact match to what you see in the game due to a problem I suffer from called "meh, good enough"
+* While there are checks to ensure specific items cannot be equipped on specific slots, the checks are lazy.  Ex: you can equip two 1 handed weapons or two shields or weapons/armor you don't have the str/dex/lvl req for.  No idea what will happen when you load this character in game, feel free to test it out.
 * Does not display shared stash items
 * Does not display belt items
 * Does not display corpse items
